@@ -1,9 +1,11 @@
 #include <iostream>
 #include <ctime>
+#include <cmath>
 #include <cstdlib>
 #include <conio.h>
+#include <vector>
+#include <Windows.h>
 #include "GameSystem.h"
-#include <iostream>
 using namespace std;
 
 enum
@@ -14,23 +16,72 @@ enum
 
 int main()
 {
-	bool isVictory = false;
+	bool gameIsRunning = false;
 	GameBoard myBoard;
 	bool turnPlayer = 0;
-	int randomNum = 0;
+	int randomNum;
 	unsigned int seed = time(0);
 	srand(seed);
+	char input;
 
-	myBoard.playTurn(0, 0, PLAYER);
-	myBoard.playTurn(1, 0, PLAYER);
-	myBoard.playTurn(2, 0, PLAYER);
+	myBoard.PrintMenuScreen();
+	cin >> input;
+	if (input == 'q')
+	{
+		exit(0);
+	}
+	if (input == 'p')
+	{
+		gameIsRunning = true;
+	}
 
-	myBoard.playTurn(0, 2, AI);
-	myBoard.playTurn(1, 2, AI);
-	myBoard.playTurn(2, 2, AI);
+	while (gameIsRunning)
+	{
+		vector<int> coordinates;
+		char location;
+		cout << "\tEnter a grid location: ";
+		cin >> location;
+		cout << location << endl;
+		if (location == 'p')
+		{
 
-	myBoard.printGameDisplay();
-	isVictory = myBoard.checkForWin();
-	cout << "  " << isVictory;
-	_getch();
+		}
+
+		if (IsValidPlot(location))
+		{
+			coordinates = GetBoardPosition(location);
+			myBoard.PlayTurn(coordinates[0], coordinates[1], turnPlayer);
+			turnPlayer = !turnPlayer;
+			system("CLS");
+			myBoard.PrintGameDisplay();
+			cout << coordinates[0] << coordinates[1] << endl << turnPlayer << endl;
+		}
+		if (myBoard.CheckForWin())
+		{
+			gameIsRunning = false;
+			if (turnPlayer == AI)
+			{
+				cout << "  Congratulations, you won!" << endl;
+			}
+			else if (turnPlayer == PLAYER)
+			{
+				cout << "  Aww man, you lost. ;(" << endl;
+			}
+			Sleep(1500);
+			myBoard.PrintGameOverScreen();
+			cin >> input;
+			if (input == 'p')
+			{
+				myBoard.ClearBoard();
+				gameIsRunning = true;
+			}
+			if (input == 'q')
+			{
+				system("CLS");
+				cout << "\tGoodbye!";
+				Sleep(1500);
+				exit(0);
+			}
+		}
+	}
 }
