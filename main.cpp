@@ -16,6 +16,8 @@ enum
 
 int main()
 {
+	int playerDice = 0;
+	int AIDice = 0;
 	bool gameIsRunning = false;
 	GameBoard myBoard;
 	bool turnPlayer = 0;
@@ -25,6 +27,7 @@ int main()
 	char input;
 
 	myBoard.PrintMenuScreen();
+	cout << "\tEnter your choice: ";
 	cin >> input;
 	if (input == 'q')
 	{
@@ -35,16 +38,54 @@ int main()
 		gameIsRunning = true;
 	}
 
+	do
+	{
+		playerDice = (rand() % 5) + 1;
+		AIDice = (rand() % 5) + 1;
+	} while (playerDice == AIDice);
+
+	ClearScreen();
+	cout << "\n\tYour dice roll: " << playerDice << endl;
+	Sleep(1000);
+	cout << "\tAI dice roll: " << AIDice << endl;
+	Sleep(1000);
+
+	if (AIDice > playerDice)
+	{
+		cout << "\n\tRip, AI goes first";
+		turnPlayer = AI;
+	}
+	else if (playerDice > AIDice)
+	{
+		cout << "\n\tHooray, you go first";
+		turnPlayer = PLAYER;
+	}
+	Sleep(2000);
+
 	while (gameIsRunning)
 	{
+		ClearScreen();
+		myBoard.PrintGameDisplay();
 		vector<int> coordinates;
-		char location;
-		cout << "\tEnter a grid location: ";
-		cin >> location;
-		cout << location << endl;
+		char location = 'a';
+		if (turnPlayer == 0)
+		{
+			cout << "\tEnter a grid location: ";
+			cin >> location;
+		}
 		if (location == 'p')
 		{
-
+			myBoard.PrintPauseScreen();
+			cout << "\t";
+			cin >> location;
+			if (location == 'q')
+			{
+				ExitGame();
+			}
+			else if (location == 'p')
+			{
+				myBoard.PrintGameDisplay();
+			}
 		}
 
 		if (IsValidPlot(location))
@@ -52,9 +93,8 @@ int main()
 			coordinates = GetBoardPosition(location);
 			myBoard.PlayTurn(coordinates[0], coordinates[1], turnPlayer);
 			turnPlayer = !turnPlayer;
-			system("CLS");
+			ClearScreen();
 			myBoard.PrintGameDisplay();
-			cout << coordinates[0] << coordinates[1] << endl << turnPlayer << endl;
 		}
 		if (myBoard.CheckForWin())
 		{
@@ -69,18 +109,32 @@ int main()
 			}
 			Sleep(1500);
 			myBoard.PrintGameOverScreen();
+			cout << "\t";
 			cin >> input;
 			if (input == 'p')
 			{
-				myBoard.ClearBoard();
-				gameIsRunning = true;
+				main();
 			}
 			if (input == 'q')
 			{
-				system("CLS");
-				cout << "\tGoodbye!";
-				Sleep(1500);
-				exit(0);
+				ClearScreen();
+				ExitGame();
+			}
+		}
+		if (myBoard.IsFull() && !myBoard.CheckForWin())
+		{
+			cout << "Whoops, nobody won\n";
+			myBoard.PrintGameOverScreen();
+			cout << "\t";
+			cin >> input;
+			if (input == 'p')
+			{
+				main();
+			}
+			if (input == 'q')
+			{
+				ClearScreen();
+				ExitGame();
 			}
 		}
 	}
